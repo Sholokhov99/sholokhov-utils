@@ -3,8 +3,9 @@
 namespace Sholokhov\Utils\Resources\Iterators;
 
 use ArrayAccess;
-use Sholokhov\Utils\Exceptions\Iterator\StopIteratorException;
+
 use Sholokhov\Utils\Resources\ResourceKeyException;
+use Sholokhov\Utils\Exceptions\Iterator\StopIteratorException;
 
 /**
  * Итератор ресурсов.
@@ -168,9 +169,9 @@ class ResourceIterator implements IteratorInterface, ArrayAccess
     /**
      * Получение ключа ресурса.
      *
-     * @return mixed
+     * @return string|int|null
      */
-    public function key(): mixed
+    public function key(): string|int|null
     {
         return key($this->data);
     }
@@ -210,7 +211,7 @@ class ResourceIterator implements IteratorInterface, ArrayAccess
      * Проверка валидности ключа.
      * Если проверка не будет пройдена, то произойдет вызов исключения.
      *
-     * @param string|int|null $key
+     * @param mixed $key
      * @return void
      * @throws ResourceKeyException
      */
@@ -283,9 +284,12 @@ class ResourceIterator implements IteratorInterface, ArrayAccess
      *
      * @param mixed $offset
      * @return mixed
+     * @throws ResourceKeyException
      */
-    public function offsetGet(mixed $offset): mixed
+    public function offsetGet(mixed $offset): bool
     {
+        $this->checkKey($offset);
+
         return $this->data[$offset];
     }
 
@@ -309,6 +313,8 @@ class ResourceIterator implements IteratorInterface, ArrayAccess
      */
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->data[$offset]);
+        if ($this->exist($offset)) {
+            unset($this->data[$offset]);
+        }
     }
 }
